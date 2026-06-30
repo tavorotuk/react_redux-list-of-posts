@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable max-len */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
 import 'bulma/css/bulma.css';
@@ -14,33 +14,36 @@ import { Loader } from './components/Loader';
 import { getUserPosts } from './api/posts';
 import { getUsers } from './api/users';
 import { useAppDispatch, useAppSelector } from './app/hooks';
-import { setCurrentPost, setPosts } from './features/postsSlice';
-import { setCurrentUser, setUsers } from './features/usersSlice';
+import { setUsers } from './features/usersSlice';
+import { setAuthor } from './features/authorSlice';
+import { setPosts, setLoaded, setHasError } from './features/postsSlice';
+import { setSelectedPost } from './features/selectedPostSlice';
 
 export const App: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { currentUser: author } = useAppSelector(state => state.users);
-  const { posts, currentPost: selectedPost } = useAppSelector(state => state.posts);
 
-  const [loaded, setLoaded] = useState(false);
-  const [hasError, setError] = useState(false);
+  const author = useAppSelector(state => state.author);
+  const { items: posts, loaded, hasError } = useAppSelector(state => state.posts);
+  const selectedPost = useAppSelector(state => state.selectedPost);
 
   function loadUserPosts(userId: number) {
-    setLoaded(false);
+    dispatch(setLoaded(false));
+    dispatch(setHasError(false));
 
     getUserPosts(userId)
       .then(postsFromServer => dispatch(setPosts(postsFromServer)))
-      .catch(() => setError(true))
-      .finally(() => setLoaded(true));
+      .catch(() => dispatch(setHasError(true)))
+      .finally(() => dispatch(setLoaded(true)));
   }
 
   useEffect(() => {
     getUsers()
       .then(usersFromServer => dispatch(setUsers(usersFromServer)));
-  }, [dispatch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    dispatch(setCurrentPost(null));
+    dispatch(setSelectedPost(null));
 
     if (author) {
       loadUserPosts(author.id);
@@ -61,7 +64,7 @@ export const App: React.FC = () => {
               <div className="block">
                 <UserSelector
                   value={author}
-                  onChange={(user) => dispatch(setCurrentUser(user))}
+                  onChange={(user) => dispatch(setAuthor(user))}
                 />
               </div>
 
@@ -89,7 +92,7 @@ export const App: React.FC = () => {
                   <PostsList
                     posts={posts}
                     selectedPostId={selectedPost?.id}
-                    onPostSelected={(post) => dispatch(setCurrentPost(post))}
+                    onPostSelected={(post) => dispatch(setSelectedPost(post))}
                   />
                 )}
               </div>

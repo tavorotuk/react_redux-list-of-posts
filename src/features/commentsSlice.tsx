@@ -2,12 +2,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Comment } from '../types/Comment';
 
-export interface UsersState {
-  comments: Comment[];
+export interface CommentsState {
+  items: Comment[];
+  loaded: boolean;
+  hasError: boolean;
 }
 
-const initialState: UsersState = {
-  comments: [],
+const initialState: CommentsState = {
+  items: [],
+  loaded: false,
+  hasError: false,
 };
 
 export const commentsSlice = createSlice({
@@ -15,10 +19,20 @@ export const commentsSlice = createSlice({
   initialState,
   reducers: {
     setComments: (state, action: PayloadAction<Comment[]>) => {
-      state.comments = action.payload;
+      state.items = action.payload;
+    },
+    setLoaded: (state, action: PayloadAction<boolean>) => {
+      state.loaded = action.payload;
+    },
+    setHasError: (state, action: PayloadAction<boolean>) => {
+      state.hasError = action.payload;
+    },
+    addComment: (state, action: PayloadAction<Comment>) => {
+      state.items.push(action.payload);
     },
   },
 });
 
-export const { setComments } = commentsSlice.actions;
+export const { setComments, setLoaded, setHasError, addComment } =
+  commentsSlice.actions;
 export default commentsSlice.reducer;

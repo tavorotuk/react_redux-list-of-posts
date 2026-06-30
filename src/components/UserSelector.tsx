@@ -12,7 +12,7 @@ export const UserSelector: React.FC<Props> = ({
   value: selectedUser,
   onChange,
 }) => {
-  const { users } = useAppSelector(state => state.users);
+  const users = useAppSelector(state => state.users);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
